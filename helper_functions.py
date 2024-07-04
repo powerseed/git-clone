@@ -1,4 +1,5 @@
 import configparser
+import hashlib
 import os
 import zlib
 
@@ -106,5 +107,30 @@ def object_read(repo, sha):
             case _: raise Exception("Unknown type {0} for object {1}.".format(object_type.decode("ascii"), sha))
 
         return c(raw[index_of_null_byte + 1:])
+
+
+def object_write(git_object, repo=None):
+    data = git_object.serialize()
+
+    result = git_object.object_type + b' ' + str(len(data)).encode() + b'\x00' + data
+
+    sha = hashlib.sha1(result).hexdigest()
+
+    if repo:
+        directory = os.path.join(repo, "objects", sha[0:2])
+
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        file_path = os.path.join(directory, sha[2:])
+
+        if not os.path.exists(file_path):
+            with open(file_path, "wb") as f:
+                f.write(zlib.compress(result))
+
+    return sha
+
+
+
 
 

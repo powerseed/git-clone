@@ -1,3 +1,6 @@
-class GitBlob:
+from GitObject import GitObject
+
+
+class GitBlob(GitObject):
     def __init__(self, data):
-        pass
+        super().__init__(data)

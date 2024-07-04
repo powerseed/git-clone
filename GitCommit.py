@@ -1,3 +1,6 @@
-class GitCommit:
+from GitObject import GitObject
+
+
+class GitCommit(GitObject):
     def __init__(self, data):
-        pass
+        super().__init__(data)

@@ -1,3 +1,6 @@
-class GitTag:
+from GitObject import GitObject
+
+
+class GitTag(GitObject):
     def __init__(self, data):
-        pass
+        super().__init__(data)

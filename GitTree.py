@@ -1,3 +1,6 @@
-class GitTree:
+from GitObject import GitObject
+
+
+class GitTree(GitObject):
     def __init__(self, data):
-        pass
+        super().__init__(data)
