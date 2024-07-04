@@ -2,7 +2,6 @@ import argparse
 import collections
 import configparser
 from datetime import datetime
-import grp, pwd
 from fnmatch import fnmatch
 import hashlib
 from math import ceil
@@ -14,7 +13,8 @@ import zlib
 argument_parser = argparse.ArgumentParser()
 argument_subparsers = argument_parser.add_subparsers(title="Commands", dest="command")
 argument_subparsers.required = True
-
+init_subparser = argument_subparsers.add_parser("init", help="Initialize a new and empty repository. ")
+init_subparser.add_argument("path", nargs="?", default=".", help="The directory to create the repository. ")
 
 def main(argv=sys.argv[1:]):
     args = argument_parser.parse_args(argv)
@@ -116,13 +116,13 @@ def create_new_repo(path):
     assert get_file_path(repo, "refs", "tags", is_making_directory=True)
     assert get_file_path(repo, "refs", "heads", is_making_directory=True)
 
-    with open(get_file_path(repo, "description"), "w") as f:
+    with open(os.path.join(repo.gitdir, "description"), "w") as f:
         f.write("Unnamed repository; edit this file 'description' to name the repository.\n")
 
-    with open(get_file_path(repo, "HEAD"), "w") as f:
+    with open(os.path.join(repo.gitdir, "HEAD"), "w") as f:
         f.write("ref: refs/heads/master\n")
 
-    with open(get_file_path(repo, "config"), "w") as f:
+    with open(os.path.join(repo.gitdir, "config"), "w") as f:
         config_parser = get_repo_default_config_parser()
         config_parser.write(f)
 
@@ -138,3 +138,7 @@ def get_repo_default_config_parser():
     config_parser.set("core", "bare", "false")
 
     return config_parser
+
+
+def cmd_init(args):
+    create_new_repo(args.path)
