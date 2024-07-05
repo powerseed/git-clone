@@ -3,15 +3,15 @@ import os
 import zlib
 
 
-def write_object(git_object, repo=None):
-    data = git_object.serialize()
+def write_object(git_object, object_type, gitdir=None):
+    data = git_object.get_blob_data()
 
-    result = git_object.object_type + b' ' + str(len(data)).encode() + b'\x00' + data
+    result = object_type.encode() + b' ' + str(len(data)).encode() + b'\x00' + data
 
     sha = hashlib.sha1(result).hexdigest()
 
-    if repo:
-        directory = os.path.join(repo, "objects", sha[0:2])
+    if gitdir:
+        directory = os.path.join(gitdir, "objects", sha[0:2])
 
         if not os.path.exists(directory):
             os.makedirs(directory)

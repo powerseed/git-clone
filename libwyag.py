@@ -5,6 +5,7 @@ import sys
 from functions.cat_file import cat_file
 from functions.create_new_repo import create_new_repo
 from functions.get_gitdir import get_gitdir
+from functions.object_hash import hash_object
 
 argument_parser = argparse.ArgumentParser()
 argument_subparsers = argument_parser.add_subparsers(title="Commands", dest="command")
@@ -14,8 +15,17 @@ init_subparser = argument_subparsers.add_parser("init", help="Initialize a new a
 init_subparser.add_argument("path", nargs="?", default=".", help="The directory to create the repository. ")
 
 cat_file_subparser = argument_subparsers.add_parser("cat-file", help="Provide content of objects. ")
-cat_file_subparser.add_argument("object_type", choices=["blob", "commit", "tag", "tree"], help="The type of the object to cat. ")
+cat_file_subparser.add_argument("object_type", choices=["blob", "commit", "tag", "tree"],
+                                help="The type of the object to cat. ")
 cat_file_subparser.add_argument("object_name", help="The object to cat. ")
+
+hash_object_subparser = argument_subparsers.add_parser("hash-object", help="Compute object ID and optionally creates a "
+                                                                           "blob from a file. ")
+hash_object_subparser.add_argument("-w", dest="is_writing", action="store_true", help="Flag that when true writes the "
+                                                                                      "object into database. ")
+hash_object_subparser.add_argument("-t", dest="object_type", choices=["blob", "commit", "tag", "tree"], default="blob",
+                                   help="The type of the object to hash. ")
+hash_object_subparser.add_argument("file_path", help="Path of the file to hash. ")
 
 
 def main(argv=sys.argv[1:]):
@@ -63,3 +73,13 @@ def cmd_cat_file(args):
     gitdir = get_gitdir(os.getcwd())
     cat_file(gitdir, args.object_type, args.object_name)
 
+
+def cmd_hash_object(args):
+    if args.is_writing:
+        gitdir = get_gitdir(os.getcwd())
+    else:
+        gitdir = None
+
+    with open(args.file_path, "rb") as file:
+        sha = hash_object(file, args.object_type, gitdir)
+        print(sha)
