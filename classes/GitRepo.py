@@ -1,7 +1,7 @@
 import os
 import configparser
 
-from helper_functions import get_file_path
+from functions.get_file_path import get_file_path
 
 
 class GitRepo(object):

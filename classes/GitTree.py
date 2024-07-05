@@ -1,4 +1,4 @@
-from GitObject import GitObject
+from classes.GitObject import GitObject
 
 
 class GitTree(GitObject):
