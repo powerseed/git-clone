@@ -27,6 +27,6 @@ def convert_raw_to_object_for_one_leaf(raw, start_index):
 
     sha = raw[index_of_null + 1:index_of_null + 21]
     sha = int.from_bytes(sha, "big")
-    sha = format(sha, "040x")
+    sha = format(sha, "x")
 
     return index_of_null + 21, GitTreeLeaf(mode, path, sha)
