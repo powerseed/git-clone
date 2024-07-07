@@ -6,6 +6,7 @@ from functions.cat_file import cat_file
 from functions.create_new_repo import create_new_repo
 from functions.get_gitdir import get_gitdir
 from functions.log_commit import log_commit
+from functions.ls_tree import ls_tree
 from functions.object_hash import hash_object
 
 argument_parser = argparse.ArgumentParser()
@@ -30,6 +31,11 @@ hash_object_subparser.add_argument("file_path", help="Path of the file to hash. 
 
 log_subparser = argument_subparsers.add_parser("log", help="Display history of a given commit. ")
 log_subparser.add_argument("commit_sha", default="HEAD", nargs="?", help="The sha of the commit. ")
+
+ls_tree_subparser = argument_subparsers.add_parser("ls-tree", help="Pretty-print a tree object. ")
+ls_tree_subparser.add_argument("-r", dest="is_recursive", action="store_true", help="Set whether it is recursing into "
+                                                                                    "sub-trees. ")
+ls_tree_subparser.add_argument("tree_sha", help="The sha of the tree. ")
 
 
 def main(argv=sys.argv[1:]):
@@ -92,3 +98,8 @@ def cmd_hash_object(args):
 def cmd_log(args):
     gitdir = get_gitdir(os.getcwd())
     log_commit(gitdir, args.commit_sha)
+
+
+def cmd_ls_tree(args):
+    gitdir = get_gitdir(os.getcwd())
+    ls_tree(gitdir, args.is_recursive, args.tree_sha)
