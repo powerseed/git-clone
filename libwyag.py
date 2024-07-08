@@ -8,6 +8,8 @@ from functions.get_gitdir import get_gitdir
 from functions.log_commit import log_commit
 from functions.ls_tree import ls_tree
 from functions.object_hash import hash_object
+from functions.read_object import read_object
+from functions.tree_checkout import tree_checkout
 
 argument_parser = argparse.ArgumentParser()
 argument_subparsers = argument_parser.add_subparsers(title="Commands", dest="command")
@@ -36,6 +38,10 @@ ls_tree_subparser = argument_subparsers.add_parser("ls-tree", help="Pretty-print
 ls_tree_subparser.add_argument("-r", dest="is_recursive", action="store_true", help="Set whether it is recursing into "
                                                                                     "sub-trees. ")
 ls_tree_subparser.add_argument("tree_sha", help="The sha of the tree. ")
+
+ls_tree_subparser = argument_subparsers.add_parser("checkout", help="Checkout a commit inside of a directory. ")
+ls_tree_subparser.add_argument("sha", help="Sha of the git object (commit or tree) to checkout. ")
+ls_tree_subparser.add_argument("path", help="Path of the directory to checkout the commit. ")
 
 
 def main(argv=sys.argv[1:]):
@@ -103,3 +109,23 @@ def cmd_log(args):
 def cmd_ls_tree(args):
     gitdir = get_gitdir(os.getcwd())
     ls_tree(gitdir, args.is_recursive, args.tree_sha)
+
+
+def cmd_checkout(args):
+    gitdir = get_gitdir(os.getcwd())
+    git_object = read_object(gitdir, args.sha)
+
+    if git_object.object_type == b'commit':
+        commit_key_value_pairs = git_object.get_key_value_pairs()
+        tree_sha = commit_key_value_pairs.get(b'tree')[0].decode('ascii')
+        git_object = read_object(gitdir, tree_sha)
+
+    if os.path.exists(args.path):
+        if not os.path.isdir(args.path):
+            raise Exception("%s is not a directory" % args.path)
+        if len(os.listdir(args.path)) > 0:
+            raise Exception("%s is not empty" % args.path)
+    else:
+        os.makedirs(args.path)
+
+    tree_checkout(gitdir, git_object, args.path)
