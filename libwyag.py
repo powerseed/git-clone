@@ -5,9 +5,11 @@ import sys
 from functions.cat_file import cat_file
 from functions.create_new_repo import create_new_repo
 from functions.get_gitdir import get_gitdir
+from functions.list_refs import get_refs_as_ordered_dictionary
 from functions.log_commit import log_commit
 from functions.ls_tree import ls_tree
 from functions.object_hash import hash_object
+from functions.print_out_refs_ordered_dictionary import print_out_refs_ordered_dictionary
 from functions.read_object import read_object
 from functions.tree_checkout import tree_checkout
 
@@ -43,6 +45,8 @@ ls_tree_subparser = argument_subparsers.add_parser("checkout", help="Checkout a 
 ls_tree_subparser.add_argument("sha", help="Sha of the git object (commit or tree) to checkout. ")
 ls_tree_subparser.add_argument("path", help="Path of the directory to checkout the commit. ")
 
+show_ref_subparser = argument_subparsers.add_parser("show-ref", help="List all references. ")
+
 
 def main(argv=sys.argv[1:]):
     args = argument_parser.parse_args(argv)
@@ -72,7 +76,7 @@ def main(argv=sys.argv[1:]):
         case "rm":
             cmd_rm(args)
         case "show-ref":
-            cmd_show_ref(args)
+            cmd_show_ref()
         case "status":
             cmd_status(args)
         case "tag":
@@ -129,3 +133,11 @@ def cmd_checkout(args):
         os.makedirs(args.path)
 
     tree_checkout(gitdir, git_object, args.path)
+
+
+def cmd_show_ref():
+    gitdir = get_gitdir(os.getcwd())
+    ref_folder_path = os.path.join(gitdir, "refs")
+    ordered_dictionary = get_refs_as_ordered_dictionary(ref_folder_path)
+    print_out_refs_ordered_dictionary(ordered_dictionary)
+
