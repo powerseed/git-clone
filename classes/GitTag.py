@@ -1,6 +1,5 @@
-from classes.GitObject import GitObject
+from classes.GitCommit import GitCommit
 
 
-class GitTag(GitObject):
-    def __init__(self, data):
-        super().__init__(data)
+class GitTag(GitCommit):
+    object_type = b'tag'
