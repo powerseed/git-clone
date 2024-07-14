@@ -4,6 +4,7 @@ import sys
 
 from functions.cat_file import cat_file
 from functions.create_new_repo import create_new_repo
+from functions.create_tag import create_tag
 from functions.get_gitdir import get_gitdir
 from functions.list_refs import get_refs_as_ordered_dictionary
 from functions.log_commit import log_commit
@@ -47,6 +48,10 @@ ls_tree_subparser.add_argument("path", help="Path of the directory to checkout t
 
 show_ref_subparser = argument_subparsers.add_parser("show-ref", help="List all references. ")
 
+tag_subparser = argument_subparsers.add_parser("tag", help="List all tags. ")
+tag_subparser.add_argument("-a", dest="is_creating_new_tag_object", action="store_true", help="Set whether it is creating a new tag object. ")
+tag_subparser.add_argument("new_tag_name", nargs="?", help="The new tag's name. ")
+tag_subparser.add_argument("sha_object_pointed_to", default="HEAD", nargs="?", help="The sha of the object that the new tag will point to. ")
 
 def main(argv=sys.argv[1:]):
     args = argument_parser.parse_args(argv)
@@ -141,3 +146,13 @@ def cmd_show_ref():
     ordered_dictionary = get_refs_as_ordered_dictionary(ref_folder_path)
     print_out_refs_ordered_dictionary(ordered_dictionary)
 
+
+def cmd_tag(args):
+    gitdir = get_gitdir(os.getcwd())
+
+    if args.is_creating_new_tag_object is True:
+        create_tag(gitdir, args.new_tag_name, args.sha_object_pointed_to)
+    else:
+        tags_folder_path = os.path.join(gitdir, "refs", "tags")
+        ordered_dictionary = get_refs_as_ordered_dictionary(tags_folder_path)
+        print_out_refs_ordered_dictionary(ordered_dictionary, parent_path="refs/tags")
